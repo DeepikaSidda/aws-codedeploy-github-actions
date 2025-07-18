@@ -34,10 +34,10 @@ phases:
 
       - echo "Deploying to EKS Cluster 1 ($CLUSTER_1_NAME)..."
       - aws eks update-kubeconfig --region $CLUSTER_1_REGION --name $CLUSTER_1_NAME
-      - sed "s|REPO_URI|$IMAGE_REPO_1|" helm-chart/values.yaml > values-use1.yaml
+      - sed "s|REPO_URI|$IMAGE_REPO_1|" demo-app/values.yaml > values-use1.yaml
       - helm upgrade --install demo-app ./helm-chart -f values-use1.yaml --namespace default
 
       - echo "Deploying to EKS Cluster 2 ($CLUSTER_2_NAME)..."
       - aws eks update-kubeconfig --region $CLUSTER_2_REGION --name $CLUSTER_2_NAME
-      - sed "s|REPO_URI|$IMAGE_REPO_2|" helm-chart/values.yaml > values-aps1.yaml
+      - sed "s|REPO_URI|$IMAGE_REPO_2|" demo-app/values.yaml > values-aps1.yaml
       - helm upgrade --install demo-app ./helm-chart -f values-aps1.yaml --namespace default
