@@ -1,74 +1,15 @@
 version: 0.2
 
-# ─────────────────────────────────────────────────────────────
-# Global env – set your values once here
-# ─────────────────────────────────────────────────────────────
-env:
-  variables:
-    AWS_ACCOUNT_ID: 381492198534          # ← your AWS account
-    REGION_1: us-east-1                   # first region
-    REGION_2: ap-south-1                  # second region
-    CLUSTER_1: eks-east                   # EKS name in us‑east‑1
-    CLUSTER_2: eks-mumbai                 # EKS name in ap‑south‑1
-    IMAGE_REPO_NODE: node-app             # ECR repo names (both regions)
-    IMAGE_REPO_NGINX: nginx-app
-
 phases:
-# ───────────── install: tools we need ─────────────
-  install:
-    runtime-versions:
-      docker: 20
-    commands:
-      - echo "[INSTALL] Installing kubectl + helm ..."
-      - curl -sLO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-      - chmod +x kubectl && mv kubectl /usr/local/bin/
-      - curl -sSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-# ───────────── pre_build: auth to both ECRs ───────
   pre_build:
     commands:
-      - echo "[PRE_BUILD] Logging in to ECR for $REGION_1 and $REGION_2 ..."
-      - aws ecr get-login-password --region $REGION_1 | \
-          docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$REGION_1.amazonaws.com
-      - aws ecr get-login-password --region $REGION_2 | \
-          docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$REGION_2.amazonaws.com
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
-      - echo "IMAGE_TAG=$IMAGE_TAG"
-
-# ───────────── build: docker build & tag ──────────
+      - echo Logging into Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $IMAGE_REPO
   build:
     commands:
-      - echo "[BUILD] Building Docker images ..."
-      - docker build -t $IMAGE_REPO_NODE:$IMAGE_TAG ./node-app
-      - docker build -t $IMAGE_REPO_NGINX:$IMAGE_TAG ./nginx
-      - echo "[BUILD] Tagging for both regions ..."
-      - |
-        for REPO in $IMAGE_REPO_NODE $IMAGE_REPO_NGINX; do
-          for REGION in $REGION_1 $REGION_2; do
-            docker tag $REPO:$IMAGE_TAG \
-              $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO:$IMAGE_TAG
-          done
-        done
-
-# ───────────── post_build: push + roll clusters ──
+      - echo Building Docker image...
+      - docker build -t $IMAGE_REPO:$IMAGE_TAG .
   post_build:
     commands:
-      - echo "[POST_BUILD] Pushing to both ECR regions ..."
-      - |
-        for REPO in $IMAGE_REPO_NODE $IMAGE_REPO_NGINX; do
-          for REGION in $REGION_1 $REGION_2; do
-            docker push $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO:$IMAGE_TAG
-          done
-        done
-
-      # ---- deploy to us‑east‑1 ----
-      - echo "[POST_BUILD] Updating $CLUSTER_1 ..."
-      - aws eks update-kubeconfig --name $CLUSTER_1 --region $REGION_1
-      - kubectl set image deployment/node-app  node-app=$AWS_ACCOUNT_ID.dkr.ecr.$REGION_1.amazonaws.com/$IMAGE_REPO_NODE:$IMAGE_TAG
-      - kubectl set image deployment/nginx     nginx=$AWS_ACCOUNT_ID.dkr.ecr.$REGION_1.amazonaws.com/$IMAGE_REPO_NGINX:$IMAGE_TAG
-
-      # ---- deploy to ap‑south‑1 ----
-      - echo "[POST_BUILD] Updating $CLUSTER_2 ..."
-      - aws eks update-kubeconfig --name $CLUSTER_2 --region $REGION_2
-      - kubectl set image deployment/node-app  node-app=$AWS_ACCOUNT_ID.dkr.ecr.$REGION_2.amazonaws.com/$IMAGE_REPO_NODE:$IMAGE_TAG
-      - kubectl set image deployment/nginx     nginx=$AWS_ACCOUNT_ID.dkr.ecr.$REGION_2.amazonaws.com/$IMAGE_REPO_NGINX:$IMAGE_TAG
+      - echo Pushing Docker image to ECR...
+      - docker push $IMAGE_REPO:$IMAGE_TAG
