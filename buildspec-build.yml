@@ -1,44 +1,27 @@
-# buildspec-build.yml
 version: 0.2
 env:
   exported-variables:
+    - IMAGE_REPO
     - IMAGE_TAG
 phases:
-  install:
-    runtime-versions:
-      docker: 19
-    commands:
-      - echo "Setup complete for build phase."
-      # AWS CLI is typically pre-installed in CodeBuild's base images or by GitHub Actions below.
   build:
     steps:
-      ## GITHUB ACTION INTEGRATION START ##
-      # 1. GitHub Action: Configure AWS credentials securely for subsequent steps
-      # This action automatically picks up the IAM role credentials assigned to your CodeBuild project.
-      - name: "Configure AWS credentials"
-        uses: aws-actions/configure-aws-credentials@v3 # ## THIS IS A GITHUB ACTION BEING RUN BY CODEBUILD ##
+      - name: Get CodeBuild Region
+        run: echo "AWS_REGION=$AWS_REGION" >> $GITHUB_ENV
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
         with:
-          aws-region: ${AWS_REGION} # AWS_REGION is provided by CodeBuild's environment.
+          aws-region: ${{ env.AWS_REGION }}
+          output-credentials: true
 
-      # 2. GitHub Action: Login to Amazon ECR securely
-      # This action uses the credentials configured in the previous step.
-      - name: "Login to Amazon ECR"
-        uses: aws-actions/amazon-ecr-login@v1 # ## THIS IS A GITHUB ACTION BEING RUN BY CODEBUILD ##
-      ## GITHUB ACTION INTEGRATION END ##
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
 
-      - name: "Build, tag, and push the image to Amazon ECR"
+      - name: Build and Push
         run: |
-          # ECR_REPOSITORY and AWS_ACCOUNT_ID are passed as environment variables from CodeBuild Project definition.
-          # AWS_REGION is set by CodeBuild environment.
-
-          IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7) # Use the commit hash as the image tag
-          echo "Building and pushing Docker image: ${ECR_REPOSITORY}:${IMAGE_TAG}"
-
-          docker build -t ${ECR_REPOSITORY}:latest .
-          docker tag ${ECR_REPOSITORY}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}
-          docker tag ${ECR_REPOSITORY}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest
-
-          docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}
-          docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest
-
-          echo "IMAGE_TAG=${IMAGE_TAG}" >> $CODEBUILD_ENV_FILE # Export IMAGE_TAG for CodePipeline
+          IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+          docker build -t $IMAGE_REPO:$IMAGE_TAG .
+          docker push $IMAGE_REPO:$IMAGE_TAG
+          echo "IMAGE_REPO=$IMAGE_REPO" >> $GITHUB_ENV
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
