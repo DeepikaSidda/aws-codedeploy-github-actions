@@ -24,10 +24,18 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build and Push Docker image
+      - name: Build and Push Node App
         env:
           IMAGE_TAG: ${{ github.sha }}
-          IMAGE_REPO: ${{ secrets.ECR_REPO_URI }}
+          NODE_REPO: ${{ secrets.ECR_REPO_URI_NODE }}
         run: |
-          docker build -t $IMAGE_REPO:$IMAGE_TAG .
-          docker push $IMAGE_REPO:$IMAGE_TAG
+          docker build -t $NODE_REPO:$IMAGE_TAG ./node-app
+          docker push $NODE_REPO:$IMAGE_TAG
+
+      - name: Build and Push NGINX Proxy
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          NGINX_REPO: ${{ secrets.ECR_REPO_URI_NGINX }}
+        run: |
+          docker build -t $NGINX_REPO:$IMAGE_TAG ./nginx
+          docker push $NGINX_REPO:$IMAGE_TAG
