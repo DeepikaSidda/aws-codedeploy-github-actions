@@ -18,16 +18,16 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: arn:aws:iam::\${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubOIDCRole
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubOIDCRole
           aws-region: us-east-1
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build and Push
+      - name: Build and Push Docker image
         env:
-          IMAGE_TAG: \${{ github.sha }}
-          IMAGE_REPO: \${{ secrets.ECR_REPO_URI }}
+          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_REPO: ${{ secrets.ECR_REPO_URI }}
         run: |
-          docker build -t \$IMAGE_REPO:\$IMAGE_TAG .
-          docker push \$IMAGE_REPO:\$IMAGE_TAG
+          docker build -t $IMAGE_REPO:$IMAGE_TAG .
+          docker push $IMAGE_REPO:$IMAGE_TAG
