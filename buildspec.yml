@@ -2,29 +2,42 @@ version: 0.2
 
 env:
   variables:
-    AWS_DEFAULT_REGION: us-east-1
-    CLUSTER_NAME: your-eks-cluster-name
     IMAGE_TAG: latest
+    CLUSTER_1_NAME: eks-east
+    CLUSTER_1_REGION: us-east-1
+    CLUSTER_2_NAME: eks-south
+    CLUSTER_2_REGION: ap-south-1
 
 phases:
   pre_build:
     commands:
-      - echo Logging into Amazon ECR...
+      - echo "Fetching AWS Account ID..."
       - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-      - IMAGE_REPO=$ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/multi-region-demo
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $IMAGE_REPO
-      - echo Configuring kubectl for EKS...
-      - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name $CLUSTER_NAME
+      - IMAGE_REPO_1=$ACCOUNT_ID.dkr.ecr.$CLUSTER_1_REGION.amazonaws.com/multi-region-demo
+      - IMAGE_REPO_2=$ACCOUNT_ID.dkr.ecr.$CLUSTER_2_REGION.amazonaws.com/multi-region-demo
+      - echo "Logging into ECR in both regions..."
+      - aws ecr get-login-password --region $CLUSTER_1_REGION | docker login --username AWS --password-stdin $IMAGE_REPO_1
+      - aws ecr get-login-password --region $CLUSTER_2_REGION | docker login --username AWS --password-stdin $IMAGE_REPO_2
 
   build:
     commands:
-      - echo Building Docker image...
-      - docker build -t $IMAGE_REPO:$IMAGE_TAG .
+      - echo "Building Docker image..."
+      - docker build -t $IMAGE_REPO_1:$IMAGE_TAG .
 
   post_build:
     commands:
-      - echo Pushing Docker image to ECR...
-      - docker push $IMAGE_REPO:$IMAGE_TAG
-      - echo Deploying to EKS with Helm...
-      - sed "s|REPO_URI|$IMAGE_REPO|" helm-chart/values.yaml > values-updated.yaml
-      - helm upgrade --install demo-app ./helm-chart -f values-updated.yaml --namespace default
+      - echo "Pushing Docker image to ECR (primary region)..."
+      - docker push $IMAGE_REPO_1:$IMAGE_TAG
+
+      - echo "Waiting for ECR replication (15 seconds)..."
+      - sleep 15
+
+      - echo "Deploying to EKS Cluster 1 ($CLUSTER_1_NAME)..."
+      - aws eks update-kubeconfig --region $CLUSTER_1_REGION --name $CLUSTER_1_NAME
+      - sed "s|REPO_URI|$IMAGE_REPO_1|" helm-chart/values.yaml > values-use1.yaml
+      - helm upgrade --install demo-app ./helm-chart -f values-use1.yaml --namespace default
+
+      - echo "Deploying to EKS Cluster 2 ($CLUSTER_2_NAME)..."
+      - aws eks update-kubeconfig --region $CLUSTER_2_REGION --name $CLUSTER_2_NAME
+      - sed "s|REPO_URI|$IMAGE_REPO_2|" helm-chart/values.yaml > values-aps1.yaml
+      - helm upgrade --install demo-app ./helm-chart -f values-aps1.yaml --namespace default
