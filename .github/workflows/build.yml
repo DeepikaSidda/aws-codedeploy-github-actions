@@ -1,0 +1,33 @@
+name: Build and Push to ECR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::\${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubOIDCRole
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and Push
+        env:
+          IMAGE_TAG: \${{ github.sha }}
+          IMAGE_REPO: \${{ secrets.ECR_REPO_URI }}
+        run: |
+          docker build -t \$IMAGE_REPO:\$IMAGE_TAG .
+          docker push \$IMAGE_REPO:\$IMAGE_TAG
