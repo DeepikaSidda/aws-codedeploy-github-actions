@@ -1,4 +1,4 @@
-name: Build and Push to ECR
+name: Multi-Region EKS Deployment
 
 on:
   push:
@@ -6,36 +6,25 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
+
     permissions:
       id-token: write
       contents: read
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubOIDCRole
+          role-to-assume: arn:aws:iam::381492198534:role/GitHubOIDCRole
           aws-region: us-east-1
 
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build and Push Node App
-        env:
-          IMAGE_TAG: ${{ github.sha }}
-          NODE_REPO: ${{ secrets.ECR_REPO_URI_NODE }}
+      - name: Trigger CodeBuild
         run: |
-          docker build -t $NODE_REPO:$IMAGE_TAG ./node-app
-          docker push $NODE_REPO:$IMAGE_TAG
-
-      - name: Build and Push NGINX Proxy
-        env:
-          IMAGE_TAG: ${{ github.sha }}
-          NGINX_REPO: ${{ secrets.ECR_REPO_URI_NGINX }}
-        run: |
-          docker build -t $NGINX_REPO:$IMAGE_TAG ./nginx
-          docker push $NGINX_REPO:$IMAGE_TAG
+          aws codebuild start-build \
+            --project-name multi-region-deploy-project \
+            --region us-east-1
