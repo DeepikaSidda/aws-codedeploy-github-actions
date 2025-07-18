@@ -1,0 +1,38 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging into ECR in us-east-1 and ap-south-1...
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.ap-south-1.amazonaws.com
+
+  build:
+    commands:
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - echo Building Docker images...
+      - docker build -t node-app:$IMAGE_TAG ./node-app
+      - docker build -t nginx-app:$IMAGE_TAG ./nginx
+      - echo Tagging for multiple regions...
+      - docker tag node-app:$IMAGE_TAG <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/node-app:$IMAGE_TAG
+      - docker tag node-app:$IMAGE_TAG <ACCOUNT_ID>.dkr.ecr.ap-south-1.amazonaws.com/node-app:$IMAGE_TAG
+      - docker tag nginx-app:$IMAGE_TAG <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/nginx-app:$IMAGE_TAG
+      - docker tag nginx-app:$IMAGE_TAG <ACCOUNT_ID>.dkr.ecr.ap-south-1.amazonaws.com/nginx-app:$IMAGE_TAG
+
+  post_build:
+    commands:
+      - echo Pushing to ECR...
+      - docker push <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/node-app:$IMAGE_TAG
+      - docker push <ACCOUNT_ID>.dkr.ecr.ap-south-1.amazonaws.com/node-app:$IMAGE_TAG
+      - docker push <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/nginx-app:$IMAGE_TAG
+      - docker push <ACCOUNT_ID>.dkr.ecr.ap-south-1.amazonaws.com/nginx-app:$IMAGE_TAG
+
+      - echo Updating EKS deployments in us-east-1...
+      - aws eks update-kubeconfig --name your-cluster-us-east-1 --region us-east-1
+      - kubectl set image deployment/node-app node-app=<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/node-app:$IMAGE_TAG
+      - kubectl set image deployment/nginx nginx=<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/nginx-app:$IMAGE_TAG
+
+      - echo Updating EKS deployments in ap-south-1...
+      - aws eks update-kubeconfig --name your-cluster-ap-south-1 --region ap-south-1
+      - kubectl set image deployment/node-app node-app=<ACCOUNT_ID>.dkr.ecr.ap-south-1.amazonaws.com/node-app:$IMAGE_TAG
+      - kubectl set image deployment/nginx nginx=<ACCOUNT_ID>.dkr.ecr.ap-south-1.amazonaws.com/nginx-app:$IMAGE_TAG
