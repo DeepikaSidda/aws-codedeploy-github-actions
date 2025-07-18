@@ -21,10 +21,16 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v3
         with:
           role-to-assume: arn:aws:iam::381492198534:role/GitHubOIDCRole
-          aws-region: us-east-1
+          aws-region: us-east-1  # Primary region for credentials
 
-      - name: Trigger CodeBuild
+      - name: Trigger CodeBuild in us-east-1
         run: |
           aws codebuild start-build \
             --project-name multi-region-deploy-east \
             --region us-east-1
+
+      - name: Trigger CodeBuild in ap-south-1
+        run: |
+          aws codebuild start-build \
+            --project-name multi-region-deploy-south \
+            --region ap-south-1
