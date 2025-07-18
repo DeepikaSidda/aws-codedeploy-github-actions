@@ -3,14 +3,18 @@ version: 0.2
 env:
   variables:
     AWS_DEFAULT_REGION: us-east-1
-    IMAGE_REPO: 381492198534.dkr.ecr.us-east-1.amazonaws.com/multi-region-demo
+    CLUSTER_NAME: your-eks-cluster-name
     IMAGE_TAG: latest
 
 phases:
   pre_build:
     commands:
       - echo Logging into Amazon ECR...
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - IMAGE_REPO=$ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/multi-region-demo
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $IMAGE_REPO
+      - echo Configuring kubectl for EKS...
+      - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name $CLUSTER_NAME
 
   build:
     commands:
@@ -21,3 +25,6 @@ phases:
     commands:
       - echo Pushing Docker image to ECR...
       - docker push $IMAGE_REPO:$IMAGE_TAG
+      - echo Deploying to EKS with Helm...
+      - sed "s|REPO_URI|$IMAGE_REPO|" helm-chart/values.yaml > values-updated.yaml
+      - helm upgrade --install demo-app ./helm-chart -f values-updated.yaml --namespace default
