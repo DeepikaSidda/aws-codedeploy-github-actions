@@ -1,10 +1,7 @@
----
 namespace: default
-replicaCount: 1
 image:
-  repository: your-app-repo # This will be overridden by CodeBuild
-  tag: latest # This will be overridden by CodeBuild
-  pullPolicy: IfNotPresent
+  repository: <your-ecr-uri> # Will be replaced by buildspec
+  tag: latest
 service:
   type: NodePort
   port: 8080
