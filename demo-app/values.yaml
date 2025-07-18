@@ -1,0 +1,10 @@
+---
+namespace: default
+replicaCount: 1
+image:
+  repository: your-app-repo # This will be overridden by CodeBuild
+  tag: latest # This will be overridden by CodeBuild
+  pullPolicy: IfNotPresent
+service:
+  type: NodePort
+  port: 8080

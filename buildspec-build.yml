@@ -1,0 +1,33 @@
+version: 0.2
+env:
+  exported-variables:
+    - IMAGE_TAG
+phases:
+  install:
+    runtime-versions:
+      docker: 19
+    commands:
+      - echo "Installing AWS CLI..."
+      - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      - unzip awscliv2.zip
+      - ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+      - rm -rf awscliv2.zip aws/
+      - which aws # Verify aws cli is in path
+  build:
+    commands:
+      # ECR_REPOSITORY and AWS_ACCOUNT_ID are passed as environment variables from CodeBuild Project definition.
+      # AWS_REGION is set by CodeBuild environment.
+      - AWS_REGION=us-east-1
+      - echo "Authenticating with ECR in region: us-east-1..."
+      - eyJwYXlsb2FkIjoiakovWHNhWVdWV3lQeGxPc3IvUGFCMXpsSS9XWmszNDd5d0VvOGxqYjN6VVg5YmV2WFhqenNQQzFWU0VEMXZVT0E3UndvS3JkYU9qMUJrS1cvbTA3RmY5akpWN1U2cEVlMitxVHdnTHFyOG9uQmRadjFpU3RoUUV0akJQTUYwb3BtRmd0cTJocmV6TzZwUG8vNEZtSTQ3VUpObERJbnloT2R3L3pVYnFFN0dheXdTU3l3UmsxU282MUZRS3dzK1ZNa0NwZEhSOEl3RTgrYUx1dUM0WVhGUW1mNWE3eXo0OEJWYXFsbXdQY0pBZmhDQzNjMDhMRFZYOUVqN3FUbU1kbGV4c210L2hraGkwL3Vub3FTMlEvb29iRVVUSklPUEFwQjdFSnV3SVVKU0pJTUNiSHZxeTZVRWpXOW9tQWNUTnh0ZS9oWlF0M3JTNEtkZVNxMGdHK094OXdObTN0Z3hMaFAvZnNYUSt2SHowVTlkditSRkhUdnJQRmZZSGNia3ZPQlAzaW01QmllWWl6bWhlVGZLYzcrWlNvMVVOQk9xVzI3cWpwQmsyZG5CRDNiWjFadDVvNERLWGNRNmtGUU44MTdreXpFRjZXYjBFU2xNTzgrcTk2TXB0L0NwbEt3UERLL1FGaFY2VWtmcGVMVDBOWkhZblY1UjhkNWZGczJXY05pKzdMWnBnQWlVSERlbTlHTk9EekpucllMQ05zVUp3V2pUWGVIMGp6TWpocjhWNEY0bVpBenVONU0zdDRjb0ZzVHQraStLUlF5SHFNY0trdVZya2RleUVyM0UzSFkveFY2QlAweEVVRGVic2VxU3o5cUV2RlFhOFgxMDB6bFp6MTk3TEtKcTJmNHFFRUVsYU9HUEVIZk45N2ppYjJLZm85eVd2REhTYUVSMmZBazVyNFZvTTZtZ3NYOHVVclF0NVY1eXlRdzI3clNEamNGdS9wUm1iZGdySnpDRmV3RlcwRU0vM0ZETDJ4bWMvWUt2VTJvc1JRaGs3VlRVdW1vdkNDcnQ2ZnJaMmhNNGhSU3RMTnc4L3dyMUtyNlVrdHpjQWEyUjhqOG1PY0lnc1NhUkoyakZCRlNjNGE4VjhFMXk2S3ZaODBFZjNNYkRHVWYvME1ickhzZXlPTXROMk53NkZ4bGQyandJdzB0ekRja2NLRFUzTldJY3R1cXNYb3pYOWNvTEw1aVpvbUpPR0RGcWYzZjhTZFRsVUEzVWFscTRXWDlBUnl3ekdKMGM2akIycGY4eEhJakZlUkF0RUUxNzJ3N2x6dFc4c1JtVXVwd0NNNHBEa1pNb280cmJFQWRUSlpSU1JCRktMN3Q2VGZqN1lTY2tyZmphYWRBQTUyIiwiZGF0YWtleSI6IkFRRUJBSGh3bTBZYUlTSmVSdEptNW4xRzZ1cWVla1h1b1hYUGU1VUZjZTlScTgvMTR3QUFBSDR3ZkFZSktvWklodmNOQVFjR29HOHdiUUlCQURCb0Jna3Foa2lHOXcwQkJ3RXdIZ1lKWUlaSUFXVURCQUV1TUJFRUREQ0d0dTZUWHkxS1FMR1p5UUlCRUlBNzhpa1RKcDNDUFVaQ1lOb0U4dEFQMk8xUEdyc3poNG5qY0NIWWxSOFl1ZVdJYUhmUzVLVzJNVzR4dHZ1Vm9vMGRxcFl3ek55ZHl0aUE3VGs9IiwidmVyc2lvbiI6IjIiLCJ0eXBlIjoiREFUQV9LRVkiLCJleHBpcmF0aW9uIjoxNzUyODQyNDM2fQ== | docker login --username AWS --password-stdin 381492198534.dkr.ecr.us-east-1.amazonaws.com
+
+      - IMAGE_TAG= # Use the commit hash as the image tag
+      - echo "Building and pushing Docker image: :"
+      - docker build -t :latest .
+      - docker tag :latest 381492198534.dkr.ecr.us-east-1.amazonaws.com/:
+      - docker tag :latest 381492198534.dkr.ecr.us-east-1.amazonaws.com/:latest # Also tag with latest
+
+      - docker push 381492198534.dkr.ecr.us-east-1.amazonaws.com/:
+      - docker push 381492198534.dkr.ecr.us-east-1.amazonaws.com/:latest
+
+      - echo "IMAGE_TAG=" >>  # Export IMAGE_TAG for CodePipeline
