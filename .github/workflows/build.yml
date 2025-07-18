@@ -9,6 +9,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_REPO_EAST: 381492198534.dkr.ecr.us-east-1.amazonaws.com/multi-region-demo
+      IMAGE_REPO_SOUTH: 381492198534.dkr.ecr.ap-south-1.amazonaws.com/multi-region-demo
+
     permissions:
       id-token: write
       contents: read
@@ -21,16 +26,22 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v3
         with:
           role-to-assume: arn:aws:iam::381492198534:role/GitHubOIDCRole
-          aws-region: us-east-1  # Primary region for credentials
+          aws-region: us-east-1
 
-      - name: Trigger CodeBuild in us-east-1
+      - name: Trigger CodeBuild (us-east-1)
         run: |
           aws codebuild start-build \
             --project-name multi-region-deploy-east \
-            --region us-east-1
+            --region us-east-1 \
+            --environment-variables-override \
+              name=IMAGE_REPO,value=$IMAGE_REPO_EAST,type=PLAINTEXT \
+              name=IMAGE_TAG,value=$IMAGE_TAG,type=PLAINTEXT
 
-      - name: Trigger CodeBuild in ap-south-1
+      - name: Trigger CodeBuild (ap-south-1)
         run: |
           aws codebuild start-build \
             --project-name multi-region-deploy-south \
-            --region ap-south-1
+            --region ap-south-1 \
+            --environment-variables-override \
+              name=IMAGE_REPO,value=$IMAGE_REPO_SOUTH,type=PLAINTEXT \
+              name=IMAGE_TAG,value=$IMAGE_TAG,type=PLAINTEXT
