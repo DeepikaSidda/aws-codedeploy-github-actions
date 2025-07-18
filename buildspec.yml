@@ -9,6 +9,15 @@ env:
     CLUSTER_2_REGION: ap-south-1
 
 phases:
+  install:
+    runtime-versions:
+      docker: 18
+    commands:
+      - echo "Installing Helm..."
+      - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+      - chmod 700 get_helm.sh
+      - ./get_helm.sh
+
   pre_build:
     commands:
       - echo "Fetching AWS Account ID..."
