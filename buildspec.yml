@@ -1,10 +1,16 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_DEFAULT_REGION: us-east-1
+    IMAGE_REPO: 381492198534.dkr.ecr.us-east-1.amazonaws.com/multi-region-demo
+    IMAGE_TAG: latest
+
 phases:
   pre_build:
     commands:
       - echo Logging into Amazon ECR...
-      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $IMAGE_REPO
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $IMAGE_REPO
 
   build:
     commands:
