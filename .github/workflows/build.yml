@@ -26,5 +26,5 @@ jobs:
       - name: Trigger CodeBuild
         run: |
           aws codebuild start-build \
-            --project-name multi-region-deploy-project \
+            --project-name multi-region-deploy-east \
             --region us-east-1
