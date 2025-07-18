@@ -22,7 +22,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Configure AWS Credentials
+      - name: Configure AWS Credentials (East)
         uses: aws-actions/configure-aws-credentials@v3
         with:
           role-to-assume: arn:aws:iam::381492198534:role/GitHubOIDCRole
@@ -34,8 +34,8 @@ jobs:
             --project-name multi-region-deploy-east \
             --region us-east-1 \
             --environment-variables-override \
-              name=IMAGE_REPO,value=$IMAGE_REPO_EAST,type=PLAINTEXT \
-              name=IMAGE_TAG,value=$IMAGE_TAG,type=PLAINTEXT
+              name=IMAGE_REPO,value=${{ env.IMAGE_REPO_EAST }},type=PLAINTEXT \
+              name=IMAGE_TAG,value=${{ env.IMAGE_TAG }},type=PLAINTEXT
 
       - name: Trigger CodeBuild (ap-south-1)
         run: |
@@ -43,5 +43,5 @@ jobs:
             --project-name multi-region-deploy-south \
             --region ap-south-1 \
             --environment-variables-override \
-              name=IMAGE_REPO,value=$IMAGE_REPO_SOUTH,type=PLAINTEXT \
-              name=IMAGE_TAG,value=$IMAGE_TAG,type=PLAINTEXT
+              name=IMAGE_REPO,value=${{ env.IMAGE_REPO_SOUTH }},type=PLAINTEXT \
+              name=IMAGE_TAG,value=${{ env.IMAGE_TAG }},type=PLAINTEXT
