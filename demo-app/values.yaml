@@ -1,6 +1,6 @@
 namespace: default
 image:
-  repository: <your-ecr-uri> # Will be replaced by buildspec
+  repository: REPO_URI  # 👈 This will be replaced
   tag: latest
 service:
   type: NodePort
