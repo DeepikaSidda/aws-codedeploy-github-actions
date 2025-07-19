@@ -9,4 +9,4 @@ spec:
       targetPort: 8080
   type: {{ .Values.service.type }}
   selector:
-    app.kubernetes.io/name: {{ .Release.Name }}
+    app.kubernetes.io/name: demo-app
