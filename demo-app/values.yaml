@@ -3,5 +3,5 @@ image:
   repository: REPO_URI  # 👈 This will be replaced
   tag: latest
 service:
-  type: NodePort
+  type: LoadBalancer
   port: 8080
