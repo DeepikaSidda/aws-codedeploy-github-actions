@@ -43,11 +43,13 @@ phases:
       - sleep 15
 
       - echo "Deploying to EKS Cluster 1 ($CLUSTER_1_NAME)..."
-      - aws eks update-kubeconfig --region $CLUSTER_1_REGION --name $CLUSTER_1_NAME
+      - aws eks update-kubeconfig --region $CLUSTER_1_REGION --name $CLUSTER_1_NAME --role-arn arn:aws:iam::381492198534:role/CodeBuildServiceRole
+      - kubectl get nodes
       - sed "s|REPO_URI|$IMAGE_REPO_1|" demo-app/values.yaml > values-use1.yaml
       - helm upgrade --install demo-app ./demo-app -f values-use1.yaml --namespace default
 
       - echo "Deploying to EKS Cluster 2 ($CLUSTER_2_NAME)..."
-      - aws eks update-kubeconfig --region $CLUSTER_2_REGION --name $CLUSTER_2_NAME
+      - aws eks update-kubeconfig --region $CLUSTER_2_REGION --name $CLUSTER_2_NAME --role-arn arn:aws:iam::381492198534:role/CodeBuildServiceRole
+      - kubectl get nodes
       - sed "s|REPO_URI|$IMAGE_REPO_2|" demo-app/values.yaml > values-aps1.yaml
       - helm upgrade --install demo-app ./demo-app -f values-aps1.yaml --namespace default
