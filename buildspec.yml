@@ -10,6 +10,9 @@ env:
 
 phases:
   install:
+    runtime-versions:
+      nodejs: 18
+      python: 3.11
     commands:
       - echo "Installing Helm..."
       - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
@@ -18,6 +21,12 @@ phases:
 
   pre_build:
     commands:
+      - echo Logging in to EKS...
+      - aws eks update-kubeconfig --region $CLUSTER_1_REGION --name $CLUSTER_1_NAME
+      - aws sts get-caller-identity
+      - aws eks describe-cluster --name $CLUSTER_1_NAME --region $CLUSTER_1_REGION
+      - kubectl get nodes  # optional: to verify access
+
       - echo "Fetching AWS Account ID..."
       - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
       - IMAGE_REPO_1=$ACCOUNT_ID.dkr.ecr.$CLUSTER_1_REGION.amazonaws.com/multi-region-demo
