@@ -41,4 +41,27 @@ Ensure your AWS credentials are set up by running the following command in your 
 ```bash
 aws configure
 
+To set up the multi-region CI/CD pipeline, please follow the detailed steps provided in the Whizlabs lab:
+
+[Build a Multi-Region CI/CD Pipeline with AWS CodePipeline and GitHub Actions](https://www.whizlabs.com/labs/build-a-multi-region-cicd-pipeline-with-aws-codepipeline-and-github-actions)
+
+### Steps to Follow:
+
+1. Sign in to the AWS Management Console.
+2. Install prerequisite tools in the AWS CloudShell environment.
+3. Create a new empty repository on GitHub.
+4. Create the required files and directories in your code editor (CloudShell).
+5. Create Amazon EKS clusters in multiple regions using AWS CLI.
+6. Set environment variables.
+7. Create an Amazon ECR repository.
+8. Create an AWS CodeStar connection in us-east-1.
+9. Add the OIDC provider to your AWS account.
+10. Create CodeBuild projects.
+11. Create the pipeline using the AWS Console in us-east-1.
+12. Create a GitHub OIDC role.
+13. Map the CodeBuild IAM role to EKS clusters in us-east-1.
+14. Install the AWS Load Balancer Controller with Helm.
+15. Map the CodeBuild IAM role to EKS clusters in ap-south-1 and install the AWS Load Balancer Controller with Helm.
+16. Add GitHub secrets for CodeBuild trigger.
+17. Final deployment and verification.
 
