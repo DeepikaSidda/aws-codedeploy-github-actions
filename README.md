@@ -36,3 +36,13 @@ This project implements a robust multi-region Continuous Integration and Continu
    ```bash
    git clone https://github.com/DeepikaSidda/aws-codedeploy-github-actions.git
    cd aws-codedeploy-github-actions
+
+ 2. **Configure AWS Credentials**
+
+Ensure your AWS credentials are set up by running the following command in your terminal:
+
+```bash
+aws configure
+
+
+
