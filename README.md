@@ -18,9 +18,6 @@ This project implements a robust multi-region Continuous Integration and Continu
 - **Reduced Latency**: Serves users from the nearest geographical region.
 - **Improved Resilience**: Minimizes single points of failure.
 
-## Architecture
-
-![Architecture Diagram](link-to-your-architecture-diagram)
 
 ## Prerequisites
 
