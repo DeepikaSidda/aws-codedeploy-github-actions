@@ -42,4 +42,3 @@ Ensure your AWS credentials are set up by running the following command in your 
 aws configure
 
 
-
