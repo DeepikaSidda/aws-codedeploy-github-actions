@@ -34,5 +34,5 @@ This project implements a robust multi-region Continuous Integration and Continu
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/multi-region-cicd-pipeline.git
-   cd multi-region-cicd-pipeline
+   git clone https://github.com/DeepikaSidda/aws-codedeploy-github-actions.git
+   cd aws-codedeploy-github-actions
