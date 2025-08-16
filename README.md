@@ -60,4 +60,3 @@ After, please follow the detailed steps provided in the Whizlabs lab:
 11. Map the CodeBuild IAM role to EKS clusters in ap-south-1 and install the AWS Load Balancer Controller with Helm.
 12. Add GitHub secrets for CodeBuild trigger.
 13. Final deployment and verification.
-
