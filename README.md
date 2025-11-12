@@ -1,3 +1,8 @@
+> 📝 **Note:**  
+> For a complete, step-by-step implementation guide — including setup instructions, configuration details, and screenshots —  
+> follow this blog on Medium:  
+> [**Build a Multi-Region CI/CD Pipeline with AWS CodePipeline and GitHub Actions**](https://medium.com/@siddadeepika/build-a-multi-region-ci-cd-pipeline-with-aws-codepipeline-and-github-actions-3db726484d46)
+
 # Multi-Region CI/CD Pipeline with AWS CodePipeline and GitHub Actions
 
 ## Overview
