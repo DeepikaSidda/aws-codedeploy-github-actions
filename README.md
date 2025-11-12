@@ -76,7 +76,6 @@ Replace the existing trust relationship with the following JSON:
 }
 
 
-
 ## Setup Instructions
 
 1. **Clone the Repository**
@@ -93,21 +92,5 @@ Ensure your AWS credentials are set up by running the following command in your 
 aws configure
 
 After, please follow the detailed steps provided in the Whizlabs lab:
+https://medium.com/@siddadeepika/build-a-multi-region-ci-cd-pipeline-with-aws-codepipeline-and-github-actions-3db726484d46
 
-[Build a Multi-Region CI/CD Pipeline with AWS CodePipeline and GitHub Actions](https://www.whizlabs.com/labs/build-a-multi-region-cicd-pipeline-with-aws-codepipeline-and-github-actions)
-
-### Steps to Follow:
-
-1. Create Amazon EKS clusters in multiple regions using AWS CLI.
-2. Set environment variables.
-3. Create an Amazon ECR repository.
-4. Create an AWS CodeStar connection in us-east-1.
-5. Add the OIDC provider to your AWS account.
-6. Create CodeBuild projects.
-7. Create the pipeline using the AWS Console in us-east-1.
-8. Create a GitHub OIDC role.
-9. Map the CodeBuild IAM role to EKS clusters in us-east-1.
-10. Install the AWS Load Balancer Controller with Helm.
-11. Map the CodeBuild IAM role to EKS clusters in ap-south-1 and install the AWS Load Balancer Controller with Helm.
-12. Add GitHub secrets for CodeBuild trigger.
-13. Final deployment and verification.
