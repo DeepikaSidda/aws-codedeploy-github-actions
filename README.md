@@ -35,13 +35,46 @@ This project implements a robust multi-region Continuous Integration and Continu
 - **Role Name:** `CodeBuildServiceRole`  
 - **Attached Inline Policy:** `CodeBuildServiceRole-Policy`
 
-#### Steps to Create the Role:
+### 🛠️ Creating the CodeBuild IAM Role
+
+#### Steps to Create the Role
+
 1. Navigate to the **IAM Console** → **Roles** → **Create role**.  
 2. Choose **AWS Service** → **CodeBuild** → click **Next**.  
 3. Skip attaching any default policies and click **Next**.  
-4. Provide the role name: **`CodeBuildServiceRole`** and create the role.  
+4. Provide the role name: **`CodeBuildServiceRole`** and click **Create role**.  
 5. After creation, open the role and click **Add permissions** → **Create inline policy**.  
 6. Paste the following JSON policy and name it **`CodeBuildServiceRole-Policy`**.  
+
+   ```json
+   {
+       "Version": "2012-10-17",
+       "Statement": [
+           {
+               "Effect": "Allow",
+               "Action": "*",
+               "Resource": "*"
+           }
+       ]
+   }
+7. Click Next, review the details, and then click Create policy.
+
+8. Go to the Trust relationships tab and click Edit trust policy.
+Replace the existing trust relationship with the following JSON:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "codebuild.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}
+
 
 
 ## Setup Instructions
