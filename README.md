@@ -94,3 +94,9 @@ aws configure
 After, please follow the detailed steps provided in the Whizlabs lab:
 https://medium.com/@siddadeepika/build-a-multi-region-ci-cd-pipeline-with-aws-codepipeline-and-github-actions-3db726484d46
 
+
+---
+
+Would you like me to add a **section for validating the deployment** (like confirming EKS pods, CodePipeline execution, and ECR replication) to the same GitHub README code?
+
+
