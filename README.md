@@ -76,27 +76,6 @@ Replace the existing trust relationship with the following JSON:
 }
 
 
-## Setup Instructions
 
-1. **Clone the Repository**
-
-   ```bash
-   git clone https://github.com/DeepikaSidda/aws-codedeploy-github-actions.git
-   cd aws-codedeploy-github-actions
-
- 2. **Configure AWS Credentials**
-
-Ensure your AWS credentials are set up by running the following command in your terminal:
-
-```bash
-aws configure
-
-After, please follow the detailed steps provided in the Whizlabs lab:
-https://medium.com/@siddadeepika/build-a-multi-region-ci-cd-pipeline-with-aws-codepipeline-and-github-actions-3db726484d46
-
-
----
-
-Would you like me to add a **section for validating the deployment** (like confirming EKS pods, CodePipeline execution, and ECR replication) to the same GitHub README code?
 
 
